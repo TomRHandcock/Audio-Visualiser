@@ -44,8 +44,13 @@ function love.draw()
       y = 0
       x = i
     else
-      y = math.floor(i/7)
-      x = i - y*7
+      y = math.floor(i/6)
+      if i/6 == math.floor(i/6) then
+        x = 6
+        y = y -1
+      else
+        x = i - y*6
+      end
     end
     love.graphics.setColor(44, 58, 65, 255)
     love.graphics.rectangle("fill", (10 * x) + ((x-1) * 200), 20 + (10*(y+1) + (150 * y)), 200, 150)
@@ -63,7 +68,11 @@ function love.draw()
         end
       end
       love.graphics.setColor(0, 255, 0, 255)
-      love.graphics.rectangle("fill", 180 + (x * 10) + ((x-1) * 200), 20 + (10*(y+1) + (150 * y)) + 130, 10, max / -3)
+      if max / -3 >= -110 then
+        love.graphics.rectangle("fill", 180 + (x * 10) + ((x-1) * 200), 20 + (10*(y+1) + (150 * y)) + 130, 10, max / -3)
+      else
+        love.graphics.rectangle("fill", 180 + (x * 10) + ((x-1) * 200), 20 + (10*(y+1) + (150 * y)) + 130, 10, -110)
+      end
     end
   end
   drawUI()
@@ -98,12 +107,17 @@ end
 
 function love.mousereleased(x, y, button, isTouch)
   for i=1,#soundData do
-    if i < 7 then
+    if i < 6 then
       tileY = 0
       tileX = i
     else
-      tileY = math.floor(i/7)
-      tileX = i - tileY*7
+      tileY = math.floor(i/6)
+      if i/6 == math.floor(i/6) then
+        tileX = 6
+        tileY = tileY -1
+      else
+        tileX = i - tileY*6
+      end
     end
     if x >= (10 * tileX) + ((tileX-1) * 200) and x <= (10 * tileX) + ((tileX) * 200) then
       print("X is " .. tileX)
