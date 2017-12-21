@@ -1,5 +1,10 @@
 require "luafft"
 function love.load()
+  faderControl = {}
+  faderControl[1] = false
+  faderControl[2] = false
+  faderControl[3] = false
+  faderControl[4] = false
   love.filesystem.createDirectory("music")
   import = {}
   files = {}
@@ -12,6 +17,19 @@ function love.load()
   max = 0
   menu = {}
   menu["file"] = false
+  faderBackground = love.graphics.newImage("FaderBackground.png")
+  faderHeight = {200,200,200,200}
+  faderChannel = {}
+  faderChannel[2] = 0
+  faderChannel[3] = 0
+  faderChannel[4] = 0
+  highlightedTrack = 0
+  label = {}
+  label[1] = "MASTER"
+  label[2] = "PRESET 1"
+  label[3] = "PRESET 2"
+  label[4] = "PRESET 3"
+
 end
 
 function love.update(dt)
@@ -20,6 +38,7 @@ function love.update(dt)
       SpectrumUpdate(dt, track)
     end
   end
+  faderMove()
 end
 
 function love.draw()
@@ -53,12 +72,12 @@ function love.draw()
       end
     end
     love.graphics.setColor(44, 58, 65, 255)
-    love.graphics.rectangle("fill", (10 * x) + ((x-1) * 200), 20 + (10*(y+1) + (150 * y)), 200, 150)
+    love.graphics.rectangle("fill", (10 * x) + ((x-1) * 201.5), 20 + (10*(y+1) + (150 * y)), 201.5, 150)
     love.graphics.setColor(255, 255, 255, 255)
     if files[i]:len() <= 27 then
-      love.graphics.print(files[i], (10 * x) + ((x-1) * 200) + 5, 20 + (15*(y+1)) + (150 * (y)))
+      love.graphics.print(files[i], (10 * x) + ((x-1) * 201.5) + 5, 20 + (15*(y+1)) + (150 * (y)))
     else
-      love.graphics.print(files[i]:sub(1, 24) .. "...", (10 * x) + ((x-1) * 200) + 5, 20 + (15*(y+1)) + (150 * (y)))
+      love.graphics.print(files[i]:sub(1, 24) .. "...", (10 * x) + ((x-1) * 201.5) + 5, 20 + (15*(y+1)) + (150 * (y)))
     end
     if UpdateSpectrum then
       max = 0
@@ -69,13 +88,20 @@ function love.draw()
       end
       love.graphics.setColor(0, 255, 0, 255)
       if max / -3 >= -110 then
-        love.graphics.rectangle("fill", 180 + (x * 10) + ((x-1) * 200), 20 + (10*(y+1) + (150 * y)) + 130, 10, max / -3)
+        love.graphics.rectangle("fill", 180 + (x * 10) + ((x-1) * 201.5), 20 + (10*(y+1) + (150 * y)) + 130, 10, max / -3)
       else
-        love.graphics.rectangle("fill", 180 + (x * 10) + ((x-1) * 200), 20 + (10*(y+1) + (150 * y)) + 130, 10, -110)
+        love.graphics.rectangle("fill", 180 + (x * 10) + ((x-1) * 201.5), 20 + (10*(y+1) + (150 * y)) + 130, 10, -110)
       end
     end
   end
   drawUI()
+
+  if highlightFaders == true then
+    love.graphics.setColor(0, 0, 255, 50)
+    for i = 2,4 do
+      love.graphics.rectangle("fill", (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - 210, (love.graphics.getWidth() - 50) / 4, 200)
+    end
+  end
 end
 
 function SpectrumUpdate(dt, trackNo)
@@ -106,6 +132,18 @@ function SpectrumUpdate(dt, trackNo)
 end
 
 function love.mousereleased(x, y, button, isTouch)
+  if highlightFaders == true then
+    for i=2,4 do
+      if x >= (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) and x <= (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) + (love.graphics.getWidth() - 50) / 4 then
+        if y >= love.graphics.getHeight() - 210 and y <= love.graphics.getHeight() - 10 then
+          faderChannel[i] = highlightedTrack
+          faderHeight[i] = (audio[highlightedTrack]:getVolume()*160)+40
+          label[i] = files[highlightedTrack]
+        end
+      end
+    end
+    highlightFaders = false
+  end
   for i=1,#soundData do
     if i < 6 then
       tileY = 0
@@ -123,7 +161,16 @@ function love.mousereleased(x, y, button, isTouch)
       print("X is " .. tileX)
       if y >= 20 + (10*(tileY+1) + (150 * tileY)) and y <= 20 + (10*(tileY+1) + (150 * tileY)) + 150 then
         print("Y is " .. y)
-        love.audio.play(audio[i])
+        if button == 1 then
+          if audio[i]:isPlaying() then
+            audio[i]:stop()
+          else
+            love.audio.play(audio[i])
+          end
+        elseif button == 2 then
+          highlightFaders = true
+          highlightedTrack = i
+        end
       end
     end
   end
@@ -150,6 +197,17 @@ function drawUI()
     love.graphics.rectangle("line", 0, 20, 250, 40)
     love.graphics.print("Search for track files", 20, 35)
   end
+
+  for i = 1,4 do
+    love.graphics.setColor(44, 58, 65, 255)
+    love.graphics.rectangle("fill", (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - 210, (love.graphics.getWidth() - 50) / 4, 200)
+    love.graphics.setColor(255, 255, 255, 255)
+    love.graphics.draw(faderBackground, 70 + (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - 200,0,1,0.9)
+    love.graphics.setColor(38,50,56,255)
+    love.graphics.rectangle("fill", 45 + (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - faderHeight[i], 50, 20)
+    love.graphics.setColor(255, 255, 255, 255)
+    love.graphics.print(label[i]:sub(1,10), 5 + (i * 10) + ((i-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - 15, 3*math.pi/2, 2, 2)
+  end
 end
 
 function searchForTracks()
@@ -162,5 +220,44 @@ function searchForTracks()
     soundData[#soundData + 1] = love.sound.newSoundData("music/" .. value)
     audio[#soundData] = love.audio.newSource(soundData[#soundData], "stream")
     spectrum[#soundData] = {}
+  end
+end
+
+function faderMove()
+  if love.mouse.isDown(1) and faderControl[4] ~= nil then
+    for i=1,4 do
+      if love.mouse.getX() >= 45 + (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) and love.mouse.getX() <= 45 + (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) + 50 then
+        if love.mouse.getY() >= love.graphics.getHeight() - faderHeight[i] and love.mouse.getY() <= love.graphics.getHeight() - faderHeight[i] + 20 then
+          faderControl[i] = true
+        else
+          faderControl[i] = false
+        end
+      else
+        faderControl[i] = false
+      end
+    end
+  end
+end
+
+function love.mousemoved(x, y, dx, dy)
+  for i=1,4 do
+    if faderControl[i] == true then
+      if love.mouse.isDown(1) then
+        faderHeight[i] = faderHeight[i] - dy
+        if faderHeight[i] > 200 then
+          faderHeight[i] = 200
+        elseif faderHeight[i] < 40 then
+          faderHeight[i] = 40
+        end
+      else
+        faderControl[i] = false
+      end
+      love.audio.setVolume((faderHeight[1]-40)/160)
+      if i>=2 and i<=4 then
+        if faderChannel[i] ~= 0 then
+          audio[faderChannel[i]]:setVolume((faderHeight[i]-40)/160)
+        end
+      end
+    end
   end
 end
