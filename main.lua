@@ -75,9 +75,9 @@ function love.draw()
     love.graphics.rectangle("fill", (10 * x) + ((x-1) * 201.5), 20 + (10*(y+1) + (150 * y)), 201.5, 150)
     love.graphics.setColor(255, 255, 255, 255)
     if files[i]:len() <= 27 then
-      love.graphics.print(files[i], (10 * x) + ((x-1) * 201.5) + 5, 20 + (15*(y+1)) + (150 * (y)))
+      love.graphics.print(files[i], (10 * x) + ((x-1) * 201.5) + 5, 20 + (10*(y+1)) + (150 * (y)))
     else
-      love.graphics.print(files[i]:sub(1, 24) .. "...", (10 * x) + ((x-1) * 201.5) + 5, 20 + (15*(y+1)) + (150 * (y)))
+      love.graphics.print(files[i]:sub(1, 24) .. "...", (10 * x) + ((x-1) * 201.5) + 5, 20 + (10*(y+1)) + (150 * (y)))
     end
     if UpdateSpectrum then
       max = 0
