@@ -23,10 +23,9 @@ function love.load()
   menu = {}
   menu["file"] = false
   faderBackground = love.graphics.newImage("FaderBackground.png")
+  faderBackground2 = love.graphics.newImage("FaderBackground2.png")
   colourButton = love.graphics.newImage("ColourButton.png")
-  normalFont = love.graphics.newFont("arial.ttf", 12)
-  boldFont = love.graphics.newFont("segoeui.ttf", 12)
-  faderHeight = {200,200,200,200,200,200,200,200}
+  faderHeight = {200,120,200,120,200,120,200,120}
   faderChannel = {}
   faderChannel[2] = 0
   faderChannel[3] = 0
@@ -37,7 +36,7 @@ function love.load()
   label[2] = "PRESET 1"
   label[3] = "PRESET 2"
   label[4] = "PRESET 3"
-
+  x_limit = math.floor(love.graphics.getWidth() / 211.5)
 end
 
 function love.update(dt)
@@ -47,6 +46,10 @@ function love.update(dt)
     end
   end
   faderMove()
+end
+
+function love.resize(w, h)
+  x_limit = math.floor(love.graphics.getWidth() / 211.5)
 end
 
 function love.draw()
@@ -67,16 +70,16 @@ function love.draw()
   love.graphics.print("File", 10, 5)
 
   for i = 1, #soundData do
-    if i < 7 then
+    if i < x_limit + 1 then
       y = 0
       x = i
     else
-      y = math.floor(i/6)
-      if i/6 == math.floor(i/6) then
-        x = 6
+      y = math.floor(i/x_limit)
+      if i/x_limit == math.floor(i/x_limit) then
+        x = x_limit
         y = y -1
       else
-        x = i - y*6
+        x = i - y*x_limit
       end
     end
     if colour[i] == 1 then
@@ -98,13 +101,11 @@ function love.draw()
     end
     love.graphics.rectangle("fill", (10 * x) + ((x-1) * 201.5), 20 + (10*(y+1) + (150 * y)), 201.5, 150)
     love.graphics.setColor(255, 255, 255, 255)
-    love.graphics.setFont(boldFont)
     if files[i]:len() <= 21 then
-      love.graphics.print(files[i], (10 * x) + ((x-1) * 201.5) + 5, 20 + (15*(y+1)) + (150 * (y)),0,1.2,1.2)
+      love.graphics.print(files[i], (10 * x) + ((x-1) * 201.5) + 5, 20 + (10*(y+1)) + (150 * (y)) + 5,0,1.25,1.25)
     else
-      love.graphics.print(files[i]:sub(1, 18) .. "...", (10 * x) + ((x-1) * 201.5) + 5, 20 + (15*(y+1)) + (150 * (y)),0,1.2,1.2)
+      love.graphics.print(files[i]:sub(1, 18) .. "...", (10 * x) + ((x-1) * 201.5) + 5, 20 + (10*(y+1)) + (150 * (y)) + 5,0,1.25,1.25)
     end
-    love.graphics.setFont(normalFont)
     if UpdateSpectrum then
       max = 0
       for bar = 1, #spectrum[i]/2 do
@@ -163,7 +164,7 @@ function love.mousereleased(x, y, button, isTouch)
       if x >= (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) and x <= (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) + (love.graphics.getWidth() - 50) / 4 then
         if y >= love.graphics.getHeight() - 210 and y <= love.graphics.getHeight() - 10 then
           faderChannel[i] = highlightedTrack
-          faderHeight[i] = (audio[highlightedTrack]:getVolume()*160)+40
+          faderHeight[i*2 - 1] = (audio[highlightedTrack]:getVolume()*160)+40
           label[i] = files[highlightedTrack]
         end
       end
@@ -171,16 +172,16 @@ function love.mousereleased(x, y, button, isTouch)
     highlightFaders = false
   end
   for i=1,#soundData do
-    if i < 6 then
+    if i < x_limit then
       tileY = 0
       tileX = i
     else
-      tileY = math.floor(i/6)
-      if i/6 == math.floor(i/6) then
-        tileX = 6
+      tileY = math.floor(i/x_limit)
+      if i/x_limit == math.floor(i/x_limit) then
+        tileX = x_limit
         tileY = tileY -1
       else
-        tileX = i - tileY*6
+        tileX = i - tileY*x_limit
       end
     end
     if x >= (10 * tileX) + ((tileX-1) * 200) and x <= (10 * tileX) + ((tileX) * 200) then
@@ -249,12 +250,12 @@ function drawUI()
       love.graphics.setColor(255, 255, 255, 255)
       love.graphics.draw(faderBackground, 60 + (math.ceil(i/2)*10) + ((math.ceil(i/2)-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - 200,0,1,0.9)
       love.graphics.setColor(38,50,56,255)
-      love.graphics.rectangle("fill", 35 + (math.ceil(i/2)*10) + ((math.ceil(i/2)-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - faderHeight[i], 50, 20)
+      love.graphics.rectangle("fill", 38 + (math.ceil(i/2)*10) + ((math.ceil(i/2)-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - faderHeight[i], 50, 20)
     else
       love.graphics.setColor(255, 255, 255, 255)
-      love.graphics.draw(faderBackground, 60 + (i/2*10) + ((i/2-1)* (love.graphics.getWidth() - 50) / 4) + 90, love.graphics.getHeight() - 200,0,1,0.9)
+      love.graphics.draw(faderBackground2, 60 + (i/2*10) + ((i/2-1)* (love.graphics.getWidth() - 50) / 4) + 90, love.graphics.getHeight() - 200,0,1,0.9)
       love.graphics.setColor(38,50,56,255)
-      love.graphics.rectangle("fill", 35 + (i/2*10) + ((i/2-1)* (love.graphics.getWidth() - 50) / 4) + 90, love.graphics.getHeight() - faderHeight[i], 50, 20)
+      love.graphics.rectangle("fill", 38 + (i/2*10) + ((i/2-1)* (love.graphics.getWidth() - 50) / 4) + 90, love.graphics.getHeight() - faderHeight[i], 50, 20)
     end
   end
 end
@@ -323,7 +324,7 @@ function love.mousemoved(x, y, dx, dy)
           end
         else
           if faderChannel[i/2] ~= 0 then
-            audio[faderChannel[i/2]]:setPitch((faderHeight[i]-40)/160)
+            audio[faderChannel[i/2]]:setPitch((faderHeight[i]+60)/180)
             print("Setting the pitch of : " .. faderChannel[i/2])
           end
         end
