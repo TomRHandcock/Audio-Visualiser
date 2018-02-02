@@ -1,5 +1,15 @@
 require "luafft"
+require "ui"
 function love.load()
+  import = {}
+  files = {}
+  soundData = {}
+  audio = {}
+  colour = {}
+  spectrum = {}
+  UpdateSpectrum = {}
+  menu = {}
+  faderChannel = {}
   faderControl = {}
   faderControl[1] = false
   faderControl[2] = false
@@ -10,23 +20,15 @@ function love.load()
   faderControl[7] = false
   faderControl[8] = false
   love.filesystem.createDirectory("music")
-  import = {}
-  files = {}
-  soundData = {}
-  audio = {}
-  colour = {}
-  spectrum = {}
-  UpdateSpectrum = {}
   time = 0
   UpdateSpectrum[1] = false
   max = 0
-  menu = {}
   menu["file"] = false
+  menu["page"] = false
   faderBackground = love.graphics.newImage("FaderBackground.png")
   faderBackground2 = love.graphics.newImage("FaderBackground2.png")
   colourButton = love.graphics.newImage("ColourButton.png")
   faderHeight = {200,120,200,120,200,120,200,120}
-  faderChannel = {}
   faderChannel[2] = 0
   faderChannel[3] = 0
   faderChannel[4] = 0
@@ -37,6 +39,9 @@ function love.load()
   label[3] = "PRESET 2"
   label[4] = "PRESET 3"
   x_limit = math.floor(love.graphics.getWidth() / 211.5)
+  y_limit = math.floor((love.graphics.getHeight()-230)/160)
+  page_number = 0
+  panel_offset = 0
 end
 
 function love.update(dt)
@@ -50,6 +55,8 @@ end
 
 function love.resize(w, h)
   x_limit = math.floor(love.graphics.getWidth() / 211.5)
+  y_limit = math.floor((love.graphics.getHeight()-230)/160)
+  panel_offset = page_number * y_limit
 end
 
 function love.draw()
@@ -62,65 +69,6 @@ function love.draw()
     end
     love.graphics.rectangle("fill", 10, love.graphics.getHeight()-20, 5, max * -5)
   end]]--
-  love.graphics.setColor(38,50,56,255)
-  love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
-  love.graphics.setColor(230, 230, 230, 255)
-  love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), 20)
-  love.graphics.setColor(0, 0, 0, 255)
-  love.graphics.print("File", 10, 5)
-
-  for i = 1, #soundData do
-    if i < x_limit + 1 then
-      y = 0
-      x = i
-    else
-      y = math.floor(i/x_limit)
-      if i/x_limit == math.floor(i/x_limit) then
-        x = x_limit
-        y = y -1
-      else
-        x = i - y*x_limit
-      end
-    end
-    if colour[i] == 1 then
-      love.graphics.setColor(44, 58, 65, 255)
-    elseif colour[i] == 2 then
-      love.graphics.setColor(224, 108, 117, 255)
-    elseif colour[i] == 3 then
-      love.graphics.setColor(209, 154, 86, 255)
-    elseif colour[i] == 4 then
-      love.graphics.setColor(220, 165, 86, 255)
-    elseif colour[i] == 5 then
-      love.graphics.setColor(152, 195, 118, 255)
-    elseif colour[i] == 6 then
-      love.graphics.setColor(115, 201, 144, 255)
-    elseif colour[i] == 7 then
-      love.graphics.setColor(88, 175, 239, 255)
-    elseif colour[i] == 8 then
-      love.graphics.setColor(198, 117, 215, 255)
-    end
-    love.graphics.rectangle("fill", (10 * x) + ((x-1) * 201.5), 20 + (10*(y+1) + (150 * y)), 201.5, 150)
-    love.graphics.setColor(255, 255, 255, 255)
-    if files[i]:len() <= 21 then
-      love.graphics.print(files[i], (10 * x) + ((x-1) * 201.5) + 5, 20 + (10*(y+1)) + (150 * (y)) + 5,0,1.25,1.25)
-    else
-      love.graphics.print(files[i]:sub(1, 18) .. "...", (10 * x) + ((x-1) * 201.5) + 5, 20 + (10*(y+1)) + (150 * (y)) + 5,0,1.25,1.25)
-    end
-    if UpdateSpectrum then
-      max = 0
-      for bar = 1, #spectrum[i]/2 do
-        if spectrum[i][bar]:abs() > max then
-          max = spectrum[i][bar]:abs()
-        end
-      end
-      love.graphics.setColor(0, 255, 0, 255)
-      if max / -3 >= -110 then
-        love.graphics.rectangle("fill", 180 + (x * 10) + ((x-1) * 201.5), 20 + (10*(y+1) + (150 * y)) + 130, 10, max / -3)
-      else
-        love.graphics.rectangle("fill", 180 + (x * 10) + ((x-1) * 201.5), 20 + (10*(y+1) + (150 * y)) + 130, 10, -110)
-      end
-    end
-  end
   drawUI()
 
   if highlightFaders == true then
@@ -186,17 +134,19 @@ function love.mousereleased(x, y, button, isTouch)
     end
     if x >= (10 * tileX) + ((tileX-1) * 200) and x <= (10 * tileX) + ((tileX) * 200) then
       print("X is " .. tileX)
-      if y >= 20 + (10*(tileY+1) + (150 * tileY)) and y <= 20 + (10*(tileY+1) + (150 * tileY)) + 150 then
+      if y >= 20 + (10*((tileY-panel_offset)+1) + (150 * (tileY-panel_offset))) and y <= 20 + (10*((tileY-panel_offset)+1) + (150 * (tileY-panel_offset))) + 150 then
         print("Y is " .. y)
-        if button == 1 then
-          if audio[i]:isPlaying() then
-            audio[i]:stop()
-          else
-            love.audio.play(audio[i])
+        if tileY - panel_offset <= y_limit - 1 and tileY - panel_offset > -1 then
+          if button == 1 then
+            if audio[i]:isPlaying() then
+              audio[i]:stop()
+            else
+              love.audio.play(audio[i])
+            end
+          elseif button == 2 then
+            highlightFaders = true
+            highlightedTrack = i
           end
-        elseif button == 2 then
-          highlightFaders = true
-          highlightedTrack = i
         end
       end
     end
@@ -209,9 +159,25 @@ function love.mousereleased(x, y, button, isTouch)
     end
   menu["file"] = false
   end
-  if x >= 0 and x <= 30 then
-    if y >= 0 and y <= 20 then
+
+  if menu["page"] == true then
+    if x >= 40 and x <= 290 then
+      if y >= 20 and y <= 60 then
+        page_number = page_number - 1
+        panel_offset = page_number * y_limit
+      elseif y >= 60 and y <= 100 then
+        page_number = page_number + 1
+        panel_offset = page_number * y_limit
+      end
+    end
+  menu["page"] = false
+  end
+
+  if y >= 0 and y <= 20 then
+    if x >= 0 and x <= 30 then
       menu["file"] = true
+    elseif x >= 40 and x <= 70 then
+      menu["page"] = true
     end
   end
   for i=2,4 do
@@ -222,40 +188,6 @@ function love.mousereleased(x, y, button, isTouch)
           colour[faderChannel[i]] = 1
         end
       end
-    end
-  end
-end
-
-function drawUI()
-  if menu["file"] == true then
-    love.graphics.setColor(230, 230, 230, 255)
-    love.graphics.rectangle("fill", 0, 20, 250, 40)
-    love.graphics.setColor(0, 0, 0, 255)
-    love.graphics.rectangle("line", 0, 20, 250, 40)
-    love.graphics.print("Search for track files", 20, 35)
-  end
-
-  for i = 1,4 do
-    love.graphics.setColor(44, 58, 65, 255)
-    love.graphics.rectangle("fill", (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - 210, (love.graphics.getWidth() - 50) / 4, 200)
-    love.graphics.setColor(255, 255, 255, 255)
-    love.graphics.print(label[i]:sub(1,10), 5 + (i * 10) + ((i-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - 15, 3*math.pi/2, 2, 2)
-    if i ~= 1 then
-      love.graphics.draw(colourButton, 220 + (i * 10) + ((i-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - 200,0,2,2)
-    end
-  end
-
-  for i = 1,8 do
-    if i/2 ~= math.floor(i/2) then
-      love.graphics.setColor(255, 255, 255, 255)
-      love.graphics.draw(faderBackground, 60 + (math.ceil(i/2)*10) + ((math.ceil(i/2)-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - 200,0,1,0.9)
-      love.graphics.setColor(38,50,56,255)
-      love.graphics.rectangle("fill", 38 + (math.ceil(i/2)*10) + ((math.ceil(i/2)-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - faderHeight[i], 50, 20)
-    else
-      love.graphics.setColor(255, 255, 255, 255)
-      love.graphics.draw(faderBackground2, 60 + (i/2*10) + ((i/2-1)* (love.graphics.getWidth() - 50) / 4) + 90, love.graphics.getHeight() - 200,0,1,0.9)
-      love.graphics.setColor(38,50,56,255)
-      love.graphics.rectangle("fill", 38 + (i/2*10) + ((i/2-1)* (love.graphics.getWidth() - 50) / 4) + 90, love.graphics.getHeight() - faderHeight[i], 50, 20)
     end
   end
 end
