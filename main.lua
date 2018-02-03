@@ -51,6 +51,9 @@ function love.update(dt)
     end
   end
   faderMove()
+  if love.mouse.isDown(1) then
+    controllingFader()
+  end
 end
 
 function love.resize(w, h)
@@ -132,20 +135,23 @@ function love.mousereleased(x, y, button, isTouch)
         tileX = i - tileY*x_limit
       end
     end
-    if x >= (10 * tileX) + ((tileX-1) * 200) and x <= (10 * tileX) + ((tileX) * 200) then
-      print("X is " .. tileX)
-      if y >= 20 + (10*((tileY-panel_offset)+1) + (150 * (tileY-panel_offset))) and y <= 20 + (10*((tileY-panel_offset)+1) + (150 * (tileY-panel_offset))) + 150 then
-        print("Y is " .. y)
-        if tileY - panel_offset <= y_limit - 1 and tileY - panel_offset > -1 then
-          if button == 1 then
-            if audio[i]:isPlaying() then
-              audio[i]:stop()
-            else
-              love.audio.play(audio[i])
+    print(faderActive)
+    if menu["file"] == false and menu["page"] == false and faderActive == false then
+      if x >= (10 * tileX) + ((tileX-1) * 200) and x <= (10 * tileX) + ((tileX) * 200) then
+        print("X is " .. tileX)
+        if y >= 20 + (10*((tileY-panel_offset)+1) + (150 * (tileY-panel_offset))) and y <= 20 + (10*((tileY-panel_offset)+1) + (150 * (tileY-panel_offset))) + 150 then
+          print("Y is " .. y)
+          if tileY - panel_offset <= y_limit - 1 and tileY - panel_offset > -1 then
+            if button == 1 then
+              if audio[i]:isPlaying() then
+                audio[i]:stop()
+              else
+                love.audio.play(audio[i])
+              end
+            elseif button == 2 then
+              highlightFaders = true
+              highlightedTrack = i
             end
-          elseif button == 2 then
-            highlightFaders = true
-            highlightedTrack = i
           end
         end
       end
@@ -162,10 +168,10 @@ function love.mousereleased(x, y, button, isTouch)
 
   if menu["page"] == true then
     if x >= 40 and x <= 290 then
-      if y >= 20 and y <= 60 then
+      if y >= 20 and y <= 50 then
         page_number = page_number - 1
         panel_offset = page_number * y_limit
-      elseif y >= 60 and y <= 100 then
+      elseif y >= 50 and y <= 100 then
         page_number = page_number + 1
         panel_offset = page_number * y_limit
       end
@@ -176,7 +182,7 @@ function love.mousereleased(x, y, button, isTouch)
   if y >= 0 and y <= 20 then
     if x >= 0 and x <= 30 then
       menu["file"] = true
-    elseif x >= 40 and x <= 70 then
+    elseif x >= 40 and x <= 110 then
       menu["page"] = true
     end
   end
@@ -188,6 +194,18 @@ function love.mousereleased(x, y, button, isTouch)
           colour[faderChannel[i]] = 1
         end
       end
+    end
+  end
+end
+
+function love.mousepressed(x, y, button, isTouch)
+  faderActive = false
+end
+
+function controllingFader()
+  for i=1,8 do
+    if faderControl[i] == true then
+      faderActive = true
     end
   end
 end
