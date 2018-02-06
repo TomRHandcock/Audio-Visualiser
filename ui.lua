@@ -22,7 +22,7 @@ function faders()
     love.graphics.setColor(255, 255, 255, 255)
     love.graphics.print(label[i]:sub(1,10), 5 + (i * 10) + ((i-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - 15, 3*math.pi/2, 2, 2)
     if i ~= 1 then
-      love.graphics.draw(colourButton, 220 + (i * 10) + ((i-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - 200,0,2,2)
+      love.graphics.draw(colourButton, 220 + (i * 10) + ((i-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - 200,0,0.5,0.5)
     end
   end
 
@@ -80,6 +80,7 @@ function panels()
       else
         love.graphics.print(files[i]:sub(1, 18) .. "...", (10 * x) + ((x-1) * 201.5) + 5, 20 + (10*((y-panel_offset)+1)) + (150 * (y-panel_offset)) + 5,0,1.25,1.25)
       end
+      love.graphics.draw(loopButton,5 + (10 * x) + ((x-1) * 201.5) + 5, 100 + (10*((y-panel_offset)+1)) + (150 * (y-panel_offset)) + 5,0,0.7,0.7)
       if UpdateSpectrum then
         max = 0
         for bar = 1, #spectrum[i]/2 do
