@@ -9,6 +9,7 @@ function love.load()
   spectrum = {}
   UpdateSpectrum = {}
   menu = {}
+  looping = {}
   faderChannel = {}
   faderControl = {}
   faderControl[1] = false
@@ -30,6 +31,7 @@ function love.load()
   colourButtonSmall = love.graphics.newImage("button_setColour_small.png")
   colourButtonLarge = love.graphics.newImage("button_setColour_large.png")
   colourButton = love.graphics.newImage("ColourButton.png")
+  loopButton = love.graphics.newImage("LoopButton.png")
   faderHeight = {200,120,200,120,200,120,200,120}
   faderChannel[2] = 0
   faderChannel[3] = 0
@@ -145,10 +147,29 @@ function love.mousereleased(x, y, button, isTouch)
           print("Y is " .. y)
           if tileY - panel_offset <= y_limit - 1 and tileY - panel_offset > -1 then
             if button == 1 then
-              if audio[i]:isPlaying() then
-                audio[i]:stop()
+              --X and Y check for loop button
+              if x >= 5 + (10 * tileX) + ((tileX-1) * 201.5) + 5 and x <= 5 + (10 * tileX) + ((tileX-1) * 201.5) + 75 then
+                if y >= 100 + (10*((tileY-panel_offset)+1)) + (150 * (tileY-panel_offset)) + 5 and y <= 100 + (10*((tileY-panel_offset)+1)) + (150 * (tileY-panel_offset)) + 61 then
+                  if audio[i]:isLooping() == true then
+                    audio[i]:setLooping(false)
+                  else
+                    audio[i]:setLooping(true)
+                  end
+                else
+                  if audio[i]:isPlaying() then
+                    audio[i]:stop()
+                  else
+                    love.audio.play(audio[i])
+                  end
+                  --Play/pause
+                end
               else
-                love.audio.play(audio[i])
+                --Play/pause
+                if audio[i]:isPlaying() then
+                  audio[i]:stop()
+                else
+                  love.audio.play(audio[i])
+                end
               end
             elseif button == 2 then
               highlightFaders = true
@@ -223,6 +244,7 @@ function searchForTracks()
     audio[#soundData] = love.audio.newSource(soundData[#soundData], "stream")
     spectrum[#soundData] = {}
     colour[#soundData] = 1
+    looping[#soundData] = false
   end
 end
 

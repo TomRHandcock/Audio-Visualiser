@@ -80,6 +80,7 @@ function panels()
       else
         love.graphics.print(files[i]:sub(1, 18) .. "...", (10 * x) + ((x-1) * 201.5) + 5, 20 + (10*((y-panel_offset)+1)) + (150 * (y-panel_offset)) + 5,0,1.25,1.25)
       end
+      love.graphics.draw(loopButton,5 + (10 * x) + ((x-1) * 201.5) + 5, 100 + (10*((y-panel_offset)+1)) + (150 * (y-panel_offset)) + 5,0,0.7,0.7)
       if UpdateSpectrum then
         max = 0
         for bar = 1, #spectrum[i]/2 do
