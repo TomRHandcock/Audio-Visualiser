@@ -27,6 +27,8 @@ function love.load()
   menu["page"] = false
   faderBackground = love.graphics.newImage("FaderBackground.png")
   faderBackground2 = love.graphics.newImage("FaderBackground2.png")
+  colourButtonSmall = love.graphics.newImage("button_setColour_small.png")
+  colourButtonLarge = love.graphics.newImage("button_setColour_large.png")
   colourButton = love.graphics.newImage("ColourButton.png")
   faderHeight = {200,120,200,120,200,120,200,120}
   faderChannel[2] = 0
