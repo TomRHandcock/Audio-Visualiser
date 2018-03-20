@@ -3,6 +3,7 @@ function drawUI()
   panels()
   faders()
   menuDialog()
+  searchingDialog()
 end
 
 function toolBar()
@@ -113,5 +114,17 @@ function menuDialog()
     love.graphics.rectangle("line", 40, 20, 250, 55)
     love.graphics.print("Previous Page", 60, 30)
     love.graphics.print("Next Page", 60, 55)
+  end
+end
+
+function searchingDialog()
+  if searching == true then
+    love.graphics.setColor(44, 58, 65, 255)
+    love.graphics.rectangle("fill", love.graphics.getWidth()/2-200, love.graphics.getHeight()/2-100, 400, 100)
+    love.graphics.setColor(255, 255, 255, 255)
+    love.graphics.print("Searching for Tracks,\nPlease wait...", love.graphics.getWidth()/2-200, love.graphics.getHeight()/2-100,0, 3, 3)
+    if timeASearch + 0.2 <= timeSStart then
+      searchForTracks()
+    end
   end
 end

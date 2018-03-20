@@ -44,6 +44,8 @@ function love.load()
   y_limit = math.floor((love.graphics.getHeight()-230)/160)
   page_number = 0
   panel_offset = 0
+  searching = false
+  timeSStart = 0
 end
 
 function love.update(dt)
@@ -56,6 +58,7 @@ function love.update(dt)
   if love.mouse.isDown(1) then
     controllingFader()
   end
+  timeSStart = timeSStart + dt
 end
 
 function love.resize(w, h)
@@ -181,7 +184,8 @@ function love.mousereleased(x, y, button, isTouch)
   if menu["file"] == true then
     if x >= 0 and x <= 250 then
       if y >= 20 and y <= 60 then
-        searchForTracks()
+        searching = true
+        timeASearch = timeSStart
       end
     end
   menu["file"] = false
@@ -244,6 +248,7 @@ function searchForTracks()
     colour[#soundData] = 1
     looping[#soundData] = false
   end
+  searching = false
 end
 
 function faderMove()
