@@ -3,7 +3,9 @@ function drawUI()
   panels()
   faders()
   menuDialog()
-  searchingDialog()
+  if displayRoster == true then
+    rosterDialog()
+  end
 end
 
 function toolBar()
@@ -127,4 +129,28 @@ function searchingDialog()
       searchForTracks()
     end
   end
+end
+
+function rosterDialog()
+  love.graphics.setColor(44, 58, 65, 255)
+  love.graphics.rectangle("fill", love.graphics.getWidth()/2-200, love.graphics.getHeight()/2-300, 400, 600)
+  love.graphics.setColor(0, 0, 0, 255)
+  love.graphics.rectangle("fill", love.graphics.getWidth()/2-190, love.graphics.getHeight()/2-250, 380, 490)
+  love.graphics.setColor(255, 255, 255, 255)
+  love.graphics.print("Select Tracks:", love.graphics.getWidth()/2-190, love.graphics.getHeight()/2-290)
+  for key, value in pairs(roster) do
+    if key <= roster_offset + 13 and key > roster_offset then
+      if requiredSound[key] == true then
+        love.graphics.draw(checkBox_true, love.graphics.getWidth()/2-180, (love.graphics.getHeight()/2-250) + (key-roster_offset-1)*37, 0, 0.05, 0.05)
+      else
+        love.graphics.draw(checkBox_false, love.graphics.getWidth()/2-180, (love.graphics.getHeight()/2-250) + (key-roster_offset-1)*37, 0, 0.05, 0.05)
+      end
+      if #value < 35 then
+        love.graphics.print(value:sub(1,#value - 4),love.graphics.getWidth()/2-130, (love.graphics.getHeight()/2-250) + (key-roster_offset-1)*37 + 15,0,1.2,1.2)
+      else
+        love.graphics.print(value:sub(1,35),love.graphics.getWidth()/2-130, (love.graphics.getHeight()/2-250) + (key-roster_offset-1)*37 + 15,0,1.2,1.2)
+      end
+    end
+  end
+  love.graphics.draw(importButton, love.graphics.getWidth()/2 + 57, love.graphics.getHeight()/2-250 + 500, 0, 0.08, 0.08)
 end

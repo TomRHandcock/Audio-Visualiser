@@ -2,6 +2,7 @@ require "luafft"
 require "ui"
 function love.load()
   import = {}
+  requiredSound = {}
   files = {}
   soundData = {}
   audio = {}
@@ -31,6 +32,9 @@ function love.load()
   colourButtonSmall = love.graphics.newImage("button_setColour_small.png")
   colourButtonLarge = love.graphics.newImage("button_setColour_large.png")
   colourButton = love.graphics.newImage("ColourButton.png")
+  importButton = love.graphics.newImage("button_Import.png")
+  checkBox_false = love.graphics.newImage("checkBox_false.png")
+  checkBox_true = love.graphics.newImage("checkBox_true.png")
   loopButton = love.graphics.newImage("LoopButton.png")
   faderHeight = {200,120,200,120,200,120,200,120}
   faderChannel[2] = 0
@@ -46,6 +50,8 @@ function love.load()
   y_limit = math.floor((love.graphics.getHeight()-230)/160)
   page_number = 0
   panel_offset = 0
+  roster_offset = 0
+  displayRoster = false
   searching = false
   timeSStart = 0
 end
@@ -117,6 +123,25 @@ function SpectrumUpdate(dt, trackNo)
 end
 
 function love.mousereleased(x, y, button, isTouch)
+  if displayRoster == true then
+    if love.mouse.getX() >= love.graphics.getWidth()/2-180 and love.mouse.getX() <= love.graphics.getWidth()/2-143 then
+      print("Mouse pressed")
+      for b=1,13 do
+        if love.mouse.getY() > (love.graphics.getHeight()/2-250) + (b-1)*37 and love.mouse.getY() <= (love.graphics.getHeight()/2-250) + (b)*37 then
+          if requiredSound[b+roster_offset] == true then
+            requiredSound[b+roster_offset] = false
+          else
+            requiredSound[b+roster_offset] = true
+          end
+        end
+      end
+    elseif x >= love.graphics.getWidth()/2 + 57 and x <= love.graphics.getWidth()/2 + 189.8 then
+      if y >= love.graphics.getHeight()/2+250 and y <= love.graphics.getHeight()/2+293 then
+        importTracks()
+        displayRoster = false
+      end
+    end
+  end
   if highlightFaders == true then
     for i=2,4 do
       if x >= (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) and x <= (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) + (love.graphics.getWidth() - 50) / 4 then
@@ -186,7 +211,7 @@ function love.mousereleased(x, y, button, isTouch)
   if menu["file"] == true then
     if x >= 0 and x <= 250 then
       if y >= 20 and y <= 60 then
-        searching = true
+        findTracks()
         timeASearch = timeSStart
       end
     end
@@ -237,12 +262,21 @@ function controllingFader()
   end
 end
 
-function searchForTracks()
-  import = love.filesystem.getDirectoryItems("music")
-  for i=1,#import do
-    files[#files + 1] = import[i]
+function findTracks()
+  roster = love.filesystem.getDirectoryItems("music")
+  for i=1,#roster do
+    requiredSound[i] = true
   end
-  for key, value in pairs(import) do
+  displayRoster = true
+end
+
+function importTracks()
+  for i=1,#roster do
+    if requiredSound[i] == true then
+      files[#files + 1] = roster[i]
+    end
+  end
+  for key, value in pairs(files) do
     print(key .. ") " .. value)
     soundData[#soundData + 1] = love.sound.newSoundData("music/" .. value)
     audio[#soundData] = love.audio.newSource(soundData[#soundData], "stream")
@@ -305,6 +339,26 @@ function love.mousemoved(x, y, dx, dy)
           if faderChannel[i/2] ~= 0 then
             audio[faderChannel[i/2]]:setPitch((faderHeight[i]+60)/180)
             print("Setting the pitch of : " .. faderChannel[i/2])
+          end
+        end
+      end
+    end
+  end
+end
+
+function love.wheelmoved(x, y)
+  if displayRoster == true then
+    print("Mouse wheel moving")
+    if love.mouse.getX() > love.graphics.getWidth()/2-200 and love.mouse.getY() < love.graphics.getWidth()/2+200 then
+      if love.mouse.getY() > love.graphics.getHeight()/2-300 and love.mouse.getY() < love.graphics.getHeight()/2+300 then
+        print("Mouse is in right place")
+        if y > 0 then
+          if roster_offset > 0 then
+            roster_offset = roster_offset - 1
+          end
+        else
+          if roster_offset + 13 < #roster then
+            roster_offset = roster_offset + 1
           end
         end
       end
