@@ -239,11 +239,22 @@ function love.mousereleased(x, y, button, isTouch)
     end
   end
   for i=2,4 do
-    if x >= 220 + (i * 10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) and x <= 220 + (i * 10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) + 76 then
-      if y >= love.graphics.getHeight() - 200 and y <= love.graphics.getHeight() - 160 then
-        colour[faderChannel[i]] = colour[faderChannel[i]] + 1
-        if colour[faderChannel[i]] > 8 then
-          colour[faderChannel[i]] = 1
+    if love.graphics.getWidth() < 1400 then
+      if x >= (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) + (love.graphics.getWidth() - 50)/4 - 90 and x <= (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) + (love.graphics.getWidth() - 50)/4 - 10 then
+        if y >= love.graphics.getHeight() - 200 and y <= love.graphics.getHeight() - 156 then
+          colour[faderChannel[i]] = colour[faderChannel[i]] + 1
+          if colour[faderChannel[i]] > 8 then
+            colour[faderChannel[i]] = 1
+          end
+        end
+      end
+    else
+      if x >= (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) + (love.graphics.getWidth() - 50)/4 - 140 and x <= (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) + (love.graphics.getWidth() - 50)/4 - 12 then
+        if y >= love.graphics.getHeight() - 200 and y <= love.graphics.getHeight() - 166 then
+          colour[faderChannel[i]] = colour[faderChannel[i]] + 1
+          if colour[faderChannel[i]] > 8 then
+            colour[faderChannel[i]] = 1
+          end
         end
       end
     end

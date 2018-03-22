@@ -25,7 +25,11 @@ function faders()
     love.graphics.setColor(255, 255, 255, 255)
     love.graphics.print(label[i]:sub(1,10), 5 + (i * 10) + ((i-1)* (love.graphics.getWidth() - 50) / 4), love.graphics.getHeight() - 15, 3*math.pi/2, 2, 2)
     if i ~= 1 then
-      love.graphics.draw(colourButtonSmall, (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) + (love.graphics.getWidth() - 50)/4 - 90, love.graphics.getHeight() - 200,0,0.16,0.16)
+      if love.graphics.getWidth() < 1400 then
+        love.graphics.draw(colourButtonSmall, (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) + (love.graphics.getWidth() - 50)/4 - 90, love.graphics.getHeight() - 200,0,0.16,0.16)
+      else
+        love.graphics.draw(colourButtonLarge, (i*10) + ((i-1)* (love.graphics.getWidth() - 50) / 4) + (love.graphics.getWidth() - 50)/4 - 140, love.graphics.getHeight() - 200,0,0.25,0.25)
+      end
     end
   end
 
